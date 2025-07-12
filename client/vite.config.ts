@@ -113,7 +113,20 @@ export default defineConfig(({ command }) => ({
             if (id.includes('i18next') || id.includes('react-i18next')) {
               return 'i18n';
             }
-            if (id.includes('lodash')) {
+            // Mermaid and ALL its dependencies in one chunk
+            if (id.includes('mermaid') || 
+                (id.includes('lodash-es') && (id.includes('cytoscape') || id.includes('dagre') || id.includes('d3'))) ||
+                id.includes('cytoscape') || 
+                id.includes('dagre-d3') ||
+                id.includes('dagre') ||
+                (id.includes('d3-') && !id.includes('d3-time'))) {
+              return 'mermaid';
+            }
+            // Keep lodash-es separate but ensure no conflicts
+            if (id.includes('lodash-es')) {
+              return 'lodash-es';
+            }
+            if (id.includes('lodash') && !id.includes('lodash-es')) {
               return 'utilities';
             }
             if (id.includes('date-fns')) {
@@ -223,6 +236,14 @@ export default defineConfig(({ command }) => ({
         if (warning.message.includes('Error when using sourcemap')) {
           return;
         }
+        // Ignore lodash-es circular dependency warnings
+        if (warning.message.includes('Circular dependency') && warning.message.includes('lodash-es')) {
+          return;
+        }
+        // Ignore mermaid related initialization warnings
+        if (warning.message.includes('Cannot access') && warning.message.includes('before initialization')) {
+          return;
+        }
         warn(warning);
       },
     },
@@ -233,6 +254,8 @@ export default defineConfig(({ command }) => ({
       '~': path.join(__dirname, 'src/'),
       $fonts: path.resolve(__dirname, 'public/fonts'),
       'micromark-extension-math': 'micromark-extension-llm-math',
+      // Fix lodash-es circular reference issues by ensuring proper resolution
+      'lodash-es': path.resolve(__dirname, 'node_modules/lodash-es'),
     },
   },
 }));
