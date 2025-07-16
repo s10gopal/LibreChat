@@ -135,7 +135,6 @@ function MCPSelect() {
         items={mcpServerNames}
         selectedValues={mcpValues ?? []}
         setSelectedValues={setMCPValues}
-        defaultSelectedValues={mcpValues ?? []}
         renderSelectedValues={renderSelectedValues}
         renderItemContent={renderItemContent}
         placeholder={placeholderText}
